@@ -17,6 +17,32 @@ function showMenu() {
     console.log("========================================");
 }
 
+function analyzeHealth(infectionPercentage) {
+
+    if (infectionPercentage === 0) {
+        return "Healthy";
+    } else if (infectionPercentage <= 20) {
+        return "Low";
+    } else if (infectionPercentage <= 50) {
+        return "Moderate";
+    } else {
+        return "High";
+    }
+}
+
+function getRecommendation(healthStatus) {
+
+    if (healthStatus === "Healthy") {
+        return "No pesticide required.";
+    } else if (healthStatus === "Low") {
+        return "Monitor the crop. Pesticide may not be required.";
+    } else if (healthStatus === "Moderate") {
+        return "Treatment may be required.";
+    } else {
+        return "Treatment required. Consider appropriate pesticide use.";
+    }
+}
+
 function checkPlantHealth() {
 
     console.log("\nAvailable Crops:");
@@ -58,6 +84,8 @@ function checkPlantHealth() {
                 }
 
                 const infectionPercentage = (affected / total) * 100;
+                const healthStatus = analyzeHealth(infectionPercentage);
+                const recommendation = getRecommendation(healthStatus);
 
                 console.log("\n========================================");
                 console.log("          PLANT HEALTH RESULT");
@@ -66,18 +94,47 @@ function checkPlantHealth() {
                 console.log(`Total Plants/Leaves: ${total}`);
                 console.log(`Affected Plants/Leaves: ${affected}`);
                 console.log(`Infection Percentage: ${infectionPercentage.toFixed(2)}%`);
-
-                if (affected === 0) {
-                    console.log("Health Status: Healthy");
-                } else {
-                    console.log("Health Status: Infection Detected");
-                }
-
+                console.log(`Health Level: ${healthStatus}`);
+                console.log(`Recommendation: ${recommendation}`);
                 console.log("========================================");
 
                 startApp();
             });
         });
+    });
+}
+
+function pesticideRecommendation() {
+
+    console.log("\nPesticide Recommendation");
+    console.log("-------------------------");
+
+    rl.question("Enter infection percentage: ", (input) => {
+
+        const infectionPercentage = Number(input);
+
+        if (
+            isNaN(infectionPercentage) ||
+            infectionPercentage < 0 ||
+            infectionPercentage > 100
+        ) {
+            console.log("\nPlease enter a percentage between 0 and 100.");
+            startApp();
+            return;
+        }
+
+        const healthStatus = analyzeHealth(infectionPercentage);
+        const recommendation = getRecommendation(healthStatus);
+
+        console.log("\n========================================");
+        console.log("       PESTICIDE RECOMMENDATION");
+        console.log("========================================");
+        console.log(`Infection Percentage: ${infectionPercentage.toFixed(2)}%`);
+        console.log(`Health Level: ${healthStatus}`);
+        console.log(`Recommendation: ${recommendation}`);
+        console.log("========================================");
+
+        startApp();
     });
 }
 
@@ -90,8 +147,7 @@ function startApp() {
             checkPlantHealth();
 
         } else if (choice === "2") {
-            console.log("\nPesticide Recommendation module will be added soon.");
-            startApp();
+            pesticideRecommendation();
 
         } else if (choice === "3") {
             console.log("\nUsage Report module will be added soon.");
