@@ -7,6 +7,7 @@ const rl = readline.createInterface({
 });
 
 const studentsFile = "./students.json";
+const attendanceFile = "./attendance.json";
 
 function showMenu() {
     console.log("\n========================================");
@@ -40,6 +41,84 @@ function viewStudents() {
     startApp();
 }
 
+function markAttendance() {
+
+    const studentsData = JSON.parse(
+        fs.readFileSync(studentsFile, "utf-8")
+    );
+
+    const attendanceData = JSON.parse(
+        fs.readFileSync(attendanceFile, "utf-8")
+    );
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const todayRecord = {
+        date: today,
+        attendance: []
+    };
+
+    let index = 0;
+
+    console.log("\n========================================");
+    console.log("           MARK ATTENDANCE");
+    console.log("========================================");
+
+    function markNextStudent() {
+
+        if (index === studentsData.students.length) {
+
+            attendanceData.records.push(todayRecord);
+
+            fs.writeFileSync(
+                attendanceFile,
+                JSON.stringify(attendanceData, null, 4)
+            );
+
+            console.log("\nAttendance saved successfully.");
+
+            startApp();
+            return;
+        }
+
+        const student = studentsData.students[index];
+
+        rl.question(
+            `Is ${student.name} present? (y/n): `,
+            (answer) => {
+
+                if (answer.toLowerCase() === "y") {
+
+                    todayRecord.attendance.push({
+                        studentId: student.id,
+                        status: "Present"
+                    });
+
+                    index++;
+                    markNextStudent();
+
+                } else if (answer.toLowerCase() === "n") {
+
+                    todayRecord.attendance.push({
+                        studentId: student.id,
+                        status: "Absent"
+                    });
+
+                    index++;
+                    markNextStudent();
+
+                } else {
+
+                    console.log("Please enter y or n.");
+                    markNextStudent();
+                }
+            }
+        );
+    }
+
+    markNextStudent();
+}
+
 function startApp() {
 
     showMenu();
@@ -52,8 +131,7 @@ function startApp() {
 
         } else if (choice === "2") {
 
-            console.log("\nAttendance module will be added soon.");
-            startApp();
+            markAttendance();
 
         } else if (choice === "3") {
 

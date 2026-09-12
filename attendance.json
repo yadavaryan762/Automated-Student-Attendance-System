@@ -1,0 +1,25 @@
+{
+    "records": [
+        {
+            "date": "2026-09-12",
+            "attendance": [
+                {
+                    "studentId": 1,
+                    "status": "Present"
+                },
+                {
+                    "studentId": 2,
+                    "status": "Present"
+                },
+                {
+                    "studentId": 3,
+                    "status": "Present"
+                },
+                {
+                    "studentId": 4,
+                    "status": "Absent"
+                }
+            ]
+        }
+    ]
+}
