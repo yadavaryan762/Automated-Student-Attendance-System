@@ -9,7 +9,38 @@ const rl = readline.createInterface({
 const studentsFile = "./students.json";
 const attendanceFile = "./attendance.json";
 
+function readStudents() {
+
+    try {
+        const data = fs.readFileSync(studentsFile, "utf-8");
+        return JSON.parse(data);
+    } catch (error) {
+        console.log("Unable to read student data.");
+        return { students: [] };
+    }
+}
+
+function readAttendance() {
+
+    try {
+        const data = fs.readFileSync(attendanceFile, "utf-8");
+        return JSON.parse(data);
+    } catch (error) {
+        console.log("Unable to read attendance data.");
+        return { records: [] };
+    }
+}
+
+function saveAttendance(data) {
+
+    fs.writeFileSync(
+        attendanceFile,
+        JSON.stringify(data, null, 4)
+    );
+}
+
 function showMenu() {
+
     console.log("\n========================================");
     console.log(" AUTOMATED STUDENT ATTENDANCE SYSTEM");
     console.log("          FOR RURAL SCHOOLS");
@@ -24,15 +55,20 @@ function showMenu() {
 
 function viewStudents() {
 
-    const studentsData = JSON.parse(
-        fs.readFileSync(studentsFile, "utf-8")
-    );
+    const studentsData = readStudents();
 
     console.log("\n========================================");
     console.log("             STUDENT LIST");
     console.log("========================================");
 
+    if (studentsData.students.length === 0) {
+        console.log("No students found.");
+        startApp();
+        return;
+    }
+
     studentsData.students.forEach((student) => {
+
         console.log(
             `${student.id}. ${student.name} - Class ${student.class}`
         );
@@ -45,13 +81,8 @@ function viewStudents() {
 
 function markAttendance() {
 
-    const studentsData = JSON.parse(
-        fs.readFileSync(studentsFile, "utf-8")
-    );
-
-    const attendanceData = JSON.parse(
-        fs.readFileSync(attendanceFile, "utf-8")
-    );
+    const studentsData = readStudents();
+    const attendanceData = readAttendance();
 
     rl.question("\nEnter class: ", (className) => {
 
@@ -60,6 +91,7 @@ function markAttendance() {
         );
 
         if (classStudents.length === 0) {
+
             console.log("\nClass not found.");
             startApp();
             return;
@@ -74,9 +106,11 @@ function markAttendance() {
         );
 
         if (existingRecord) {
+
             console.log(
                 "\nAttendance for this class has already been marked today."
             );
+
             startApp();
             return;
         }
@@ -99,10 +133,7 @@ function markAttendance() {
 
                 attendanceData.records.push(todayRecord);
 
-                fs.writeFileSync(
-                    attendanceFile,
-                    JSON.stringify(attendanceData, null, 4)
-                );
+                saveAttendance(attendanceData);
 
                 console.log("\nAttendance saved successfully.");
 
@@ -116,7 +147,9 @@ function markAttendance() {
                 `Is ${student.name} present? (y/n): `,
                 (answer) => {
 
-                    if (answer.toLowerCase() === "y") {
+                    const input = answer.toLowerCase();
+
+                    if (input === "y") {
 
                         todayRecord.attendance.push({
                             studentId: student.id,
@@ -126,7 +159,7 @@ function markAttendance() {
                         index++;
                         markNextStudent();
 
-                    } else if (answer.toLowerCase() === "n") {
+                    } else if (input === "n") {
 
                         todayRecord.attendance.push({
                             studentId: student.id,
@@ -138,7 +171,10 @@ function markAttendance() {
 
                     } else {
 
-                        console.log("Please enter y or n.");
+                        console.log(
+                            "Invalid input. Please enter y or n."
+                        );
+
                         markNextStudent();
                     }
                 }
@@ -151,19 +187,15 @@ function markAttendance() {
 
 function viewAttendanceReport() {
 
-    const studentsData = JSON.parse(
-        fs.readFileSync(studentsFile, "utf-8")
-    );
-
-    const attendanceData = JSON.parse(
-        fs.readFileSync(attendanceFile, "utf-8")
-    );
+    const studentsData = readStudents();
+    const attendanceData = readAttendance();
 
     console.log("\n========================================");
     console.log("          ATTENDANCE REPORT");
     console.log("========================================");
 
     if (attendanceData.records.length === 0) {
+
         console.log("No attendance records found.");
         startApp();
         return;
@@ -216,13 +248,8 @@ function viewAttendanceReport() {
 
 function classWiseAttendance() {
 
-    const studentsData = JSON.parse(
-        fs.readFileSync(studentsFile, "utf-8")
-    );
-
-    const attendanceData = JSON.parse(
-        fs.readFileSync(attendanceFile, "utf-8")
-    );
+    const studentsData = readStudents();
+    const attendanceData = readAttendance();
 
     rl.question("\nEnter class: ", (className) => {
 
@@ -231,6 +258,7 @@ function classWiseAttendance() {
         );
 
         if (classStudents.length === 0) {
+
             console.log("\nClass not found.");
             startApp();
             return;
