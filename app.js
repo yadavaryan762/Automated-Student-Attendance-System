@@ -53,6 +53,16 @@ function markAttendance() {
 
     const today = new Date().toISOString().split("T")[0];
 
+    const existingRecord = attendanceData.records.find(
+        (record) => record.date === today
+    );
+
+    if (existingRecord) {
+        console.log("\nAttendance has already been marked today.");
+        startApp();
+        return;
+    }
+
     const todayRecord = {
         date: today,
         attendance: []
@@ -119,6 +129,67 @@ function markAttendance() {
     markNextStudent();
 }
 
+function viewAttendanceReport() {
+
+    const studentsData = JSON.parse(
+        fs.readFileSync(studentsFile, "utf-8")
+    );
+
+    const attendanceData = JSON.parse(
+        fs.readFileSync(attendanceFile, "utf-8")
+    );
+
+    console.log("\n========================================");
+    console.log("          ATTENDANCE REPORT");
+    console.log("========================================");
+
+    if (attendanceData.records.length === 0) {
+        console.log("No attendance records found.");
+        startApp();
+        return;
+    }
+
+    studentsData.students.forEach((student) => {
+
+        let presentDays = 0;
+        let totalDays = 0;
+
+        attendanceData.records.forEach((record) => {
+
+            const studentRecord = record.attendance.find(
+                (item) => item.studentId === student.id
+            );
+
+            if (studentRecord) {
+
+                totalDays++;
+
+                if (studentRecord.status === "Present") {
+                    presentDays++;
+                }
+            }
+        });
+
+        const absentDays = totalDays - presentDays;
+
+        let percentage = 0;
+
+        if (totalDays > 0) {
+            percentage = (presentDays / totalDays) * 100;
+        }
+
+        console.log(`\nStudent: ${student.name}`);
+        console.log(`Class: ${student.class}`);
+        console.log(`Present: ${presentDays}`);
+        console.log(`Absent: ${absentDays}`);
+        console.log(`Attendance: ${percentage.toFixed(2)}%`);
+    });
+
+    console.log("\n========================================");
+
+    startApp();
+}
+
 function startApp() {
 
     showMenu();
@@ -135,8 +206,7 @@ function startApp() {
 
         } else if (choice === "3") {
 
-            console.log("\nReport module will be added soon.");
-            startApp();
+            viewAttendanceReport();
 
         } else if (choice === "4") {
 
